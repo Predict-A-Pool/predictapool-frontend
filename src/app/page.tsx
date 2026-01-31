@@ -1,9 +1,26 @@
 import Image from "next/image";
+import { API_BASE_URL } from "@/lib/api";
 
-export default function Home() {
+export default async function Home() {
+  let status = "unknown";
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/health`, { cache: "no-store" });
+    const data = await res.json();
+    status = data.status;
+  } catch (error) {
+    status = "unreachable";
+    console.log("Error fetching backend status:");
+    console.log(error);
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <div className="text-xl">
+          Backend status: <strong>{status}</strong>
+        </div>
+
         <Image
           className="dark:invert"
           src="/next.svg"
