@@ -4,6 +4,13 @@ import { useState } from "react";
 import { login } from "@/lib/auth";
 import { setAccessToken } from "@/lib/auth";
 
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return "Login failed";
+}
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -18,8 +25,8 @@ export default function LoginPage() {
             setAccessToken(response.access_token);
             alert("Login successful!");
             // Redirect or update UI after successful login
-        } catch (err: any) {
-            setError(err.message || "Login failed");
+        } catch (error: unknown) {
+            setError(getErrorMessage(error));
         }
     }
 

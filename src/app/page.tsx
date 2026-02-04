@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import Image from "next/image";
 import { graphqlFetch } from "@/lib/graphql";
 
 type HealthQuery = {

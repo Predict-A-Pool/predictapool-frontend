@@ -1,5 +1,3 @@
-import { apiFetch } from "./api";
-
 export type SignupPayload = {
     email: string;
     password: string;
@@ -12,8 +10,29 @@ export type UserPublic = {
     is_verified: boolean;
 }
 
+async function authFetch<T>(
+    path: string,
+    options: RequestInit = {}
+): Promise<T> {
+    const res = await fetch(path, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+        },
+        cache: "no-store"
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.detail || "API error");
+    }
+
+    return res.json();
+}
+
 export async function signup(payload: SignupPayload): Promise<UserPublic> {
-    return apiFetch<UserPublic>("/auth/signup", {
+    return authFetch<UserPublic>("/api/auth/signup", {
         method: "POST",
         body: JSON.stringify(payload)
     });
@@ -30,14 +49,20 @@ export type LoginResponse = {
 }
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-    return apiFetch<LoginResponse>("/auth/login", {
+    return authFetch<LoginResponse>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(payload)
     });
 }
 
 export async function getMe(): Promise<UserPublic> {
-    return apiFetch<UserPublic>("/auth/me");
+    const accessToken = getAccessToken();
+
+    return authFetch<UserPublic>("/api/auth/me", {
+        headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : undefined
+    });
 }
 
 export function setAccessToken(token: string) {

@@ -1,33 +1,38 @@
-import { getAccessToken } from "./auth";
+import "server-only";
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, "");
+}
 
 export function getApiBaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
 
   if (!url) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+    throw new Error(
+      "NEXT_PUBLIC_API_URL is not defined. Set it in .env/.env.local for localhost, or as a system env var in non-local environments."
+    );
   }
 
-  return url;
+  return normalizeBaseUrl(url);
 }
 
 export async function apiFetch<T>(
-    path: string,
-    options: RequestInit = {}
+  path: string,
+  options: RequestInit = {}
 ): Promise<T> {
-    const res = await fetch(`${getApiBaseUrl()}${path}`, {
-        ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...(options.headers || {}),
-            ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
-        },
-        cache: "no-store"
-    });
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    cache: "no-store",
+  });
 
-    if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.detail || "API error");
-    }
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.detail || "API error");
+  }
 
-    return res.json();
+  return res.json();
 }

@@ -1,3 +1,4 @@
+import "server-only";
 import { getApiBaseUrl } from "./api";
 
 type GraphQLResponse<T> = {
