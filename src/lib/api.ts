@@ -1,20 +1,25 @@
 import { getAccessToken } from "./auth";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
+function getApiBaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_API_URL;
 
-if (!API_BASE_URL) {
+  if (!url) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+
+  return url;
 }
 
 export async function apiFetch<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const res = await fetch(`${API_BASE_URL}${path}`, {
+    const res = await fetch(`${getApiBaseUrl()}${path}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            ...(options.headers || {})
+            ...(options.headers || {}),
+            ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
         },
         cache: "no-store"
     });
