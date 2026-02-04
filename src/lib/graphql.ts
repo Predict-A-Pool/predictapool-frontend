@@ -1,23 +1,15 @@
+import { getApiBaseUrl } from "./api";
+
 type GraphQLResponse<T> = {
     data?: T;
     errors?: { message: string }[];
-}
-
-function getApiBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_GRAPHQL_URL;
-
-  if (!url) {
-    throw new Error("NEXT_PUBLIC_GRAPHQL_URL is not defined");
-  }
-
-  return url;
 }
 
 export async function graphqlFetch<T>(
     query: string,
     variables?: Record<string, unknown>
 ): Promise<T> {
-    const res = await fetch(getApiBaseUrl(), {
+    const res = await fetch(`${getApiBaseUrl()}/graphql`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
